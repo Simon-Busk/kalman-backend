@@ -3,6 +3,7 @@ package com.kalman.controller;
 import com.kalman.model.*;
 import com.kalman.service.KalmanService;
 import com.kalman.service.KalmanSimulation;
+import com.kalman.service.MultivariateKalmanService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +30,7 @@ import java.util.ArrayList;
 public class KalmanController {
 
     private final KalmanService kalmanService;
+    private final MultivariateKalmanService multivariateKalmanService;
 
     // ── POST /api/kalman/init ─────────────────────────────────────────────────
 
@@ -114,9 +116,9 @@ public class KalmanController {
 
     /** Wipe the filter for this session so a new init can begin. */
     @DeleteMapping("/reset")
-    public ResponseEntity<Void> reset() {
+    public ResponseEntity<String> reset() {
         kalmanService.reset();
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok("Kalman filter was succesfully reset and a new filter can be initialised.");
     }
 
     @PostMapping("/simulation")
@@ -126,5 +128,38 @@ public class KalmanController {
         simulation.setVariance(request.getVariance());
         ArrayList<StepResult> result = simulation.Simulate(request.getNumberOfMeasurements());
         return ResponseEntity.ok(result);
+    }
+
+    // Multivariate api
+
+    @PostMapping("/multivariate/init")
+    public ResponseEntity<MultivariateFilterState> multivariateInit(@Valid @RequestBody MultivariateInitRequest init) {
+        MultivariateFilterState filterState = multivariateKalmanService.initialise(init);
+        return ResponseEntity.ok((filterState));
+    }
+
+    @PostMapping("multivariate/step")
+    public ResponseEntity<?> multivariateStep(@Valid @RequestBody MultivariateMeasurementRequest stepRequest) {
+        if (!multivariateKalmanService.isInitialised()) {
+            return ResponseEntity.status(409)
+                    .body("Multivariate filter not initialised. POST /api/kalman/multivariate/init first.");
+        }
+        MultivariateStepResult stepResult = multivariateKalmanService.step(stepRequest);
+        return ResponseEntity.ok(stepResult);
+    }
+
+    @GetMapping("/multivariate/state")
+    public ResponseEntity<?> multivariateState() {
+        if (!multivariateKalmanService.isInitialised()) {
+            return ResponseEntity.status(409)
+                    .body("Multivariate filter not initialised. POST /api/kalman/multivariate/init first.");
+        }
+        return ResponseEntity.ok(multivariateKalmanService.currentState());
+    }
+
+    @DeleteMapping("/multivariate/reset")
+    public ResponseEntity<String> multivariateReset() {
+        multivariateKalmanService.reset();
+        return ResponseEntity.ok("Multivariate kalman filter was reset and a new filter can be initialised.");
     }
 }

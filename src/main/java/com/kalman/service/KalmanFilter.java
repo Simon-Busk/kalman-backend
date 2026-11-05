@@ -43,12 +43,11 @@ public class KalmanFilter {
     /** Run one predict→update cycle. Returns the new state estimate. */
     public double update(double measurement) {
         // Predict
-        double xPred = x;
         double pPred = P + Q;
 
         // Update
-        double K = pPred / (pPred + R);
-        x = xPred + K * (measurement - xPred);
+        double K = pPred / (pPred + R);  //Weight that minimizes uncertainty (Kalman gain)
+        x = x + K * (measurement - x);
         P = (1.0 - K) * pPred;
         step++;
 

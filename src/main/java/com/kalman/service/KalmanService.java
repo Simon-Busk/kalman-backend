@@ -4,6 +4,7 @@ import com.kalman.model.FilterState;
 import com.kalman.model.InitRequest;
 import com.kalman.model.MeasurementRequest;
 import com.kalman.model.StepResult;
+import lombok.Getter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.annotation.SessionScope;
 
@@ -19,6 +20,7 @@ import org.springframework.web.context.annotation.SessionScope;
 public class KalmanService {
 
     private KalmanFilter filter;
+    @Getter
     private boolean initialised = false;
 
     // ── Lifecycle ─────────────────────────────────────────────────────────────
@@ -76,8 +78,6 @@ public class KalmanService {
         filter      = null;
         initialised = false;
     }
-
-    public boolean isInitialised() { return initialised; }
 
     // ── Private helpers ───────────────────────────────────────────────────────
 
