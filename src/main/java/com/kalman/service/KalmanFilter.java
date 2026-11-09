@@ -27,6 +27,7 @@ public class KalmanFilter {
 
     private double x;         // current state estimate
     private double P;         // current error covariance
+    private double K;
     @Getter
     private int    step = 0;  // number of measurements processed
 
@@ -38,6 +39,7 @@ public class KalmanFilter {
         this.P = initialUncertainty;
         this.Q = processNoise;
         this.R = measurementNoise;
+        this.K = (P+Q)/(P+Q+R);
     }
 
     /** Run one predict→update cycle. Returns the new state estimate. */
@@ -45,16 +47,15 @@ public class KalmanFilter {
         // Predict
         double pPred = P + Q;
 
-        // Update
-        double K = pPred / (pPred + R);  //Weight that minimizes uncertainty (Kalman gain)
         x = x + K * (measurement - x);
         P = (1.0 - K) * pPred;
         step++;
+        K = (P+Q)/(P+Q+R); //Update the kalman gain for the next step
 
         return x;
     }
 
     public double getEstimate()    { return x; }
     public double getUncertainty() { return P; }
-    public double getKalmanGain()  { return (P + Q) / (P + Q + R); } // gain for next step
+    public double getKalmanGain()  { return K; } // gain for next step
 }

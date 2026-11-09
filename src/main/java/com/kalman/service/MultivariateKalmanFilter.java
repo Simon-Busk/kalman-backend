@@ -46,10 +46,11 @@ public class MultivariateKalmanFilter {
     public void update(SimpleMatrix measurement) {
         SimpleMatrix pPred = P.plus(Q);
         z = measurement;
-        SimpleMatrix S = pPred.mult(R);
+        SimpleMatrix S = pPred.plus(R);
         SimpleMatrix K = pPred.mult(S.invert());
         x = x.plus(K.mult(measurement.minus(x)));
-        P = SimpleMatrix.identity(P.getNumRows()).minus(K).mult(pPred);
+        SimpleMatrix IK = SimpleMatrix.identity(P.getNumRows()).minus(K);
+        P = IK.mult(pPred).mult(IK.transpose()).plus(K.mult(R).mult(K.transpose()));
         step++;
     }
 
