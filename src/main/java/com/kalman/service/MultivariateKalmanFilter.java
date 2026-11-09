@@ -1,5 +1,6 @@
 package com.kalman.service;
 
+import com.kalman.service.exceptions.InvalidMeasurementException;
 import org.ejml.simple.SimpleMatrix;
 import lombok.Getter;
 
@@ -23,7 +24,7 @@ public class MultivariateKalmanFilter {
     private final SimpleMatrix Q;
     private final SimpleMatrix R;
 
-    private SimpleMatrix x; //This is n*1 vector
+    private SimpleMatrix x; //This is n*1 vector, estimate.
     private SimpleMatrix P;
     private SimpleMatrix z; //Latest measurement.
 
@@ -41,6 +42,12 @@ public class MultivariateKalmanFilter {
     }
 
     public void update(SimpleMatrix measurement) {
+        if (measurement.getNumRows() != x.getNumRows()) {
+            String errorMessage = "Number of data points in the measurement doesn't fit the filter.";
+            errorMessage += "\nDatapoints in filter: " + x.getNumRows();
+            errorMessage += "\nDatapoints in measurement: " + measurement.getNumRows();
+            throw new InvalidMeasurementException(errorMessage);
+        }
         SimpleMatrix pPred = P.plus(Q);
         z = measurement;
         SimpleMatrix S = pPred.plus(R);
