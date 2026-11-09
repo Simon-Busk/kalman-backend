@@ -6,6 +6,14 @@ import org.ejml.simple.SimpleEVD;
 import org.ejml.simple.SimpleMatrix;
 
 public class PositiveDefiniteValidator implements ConstraintValidator<PositiveDefinite, double[][]> {
+
+    private boolean semiPositive;
+
+    @Override
+    public void initialize(PositiveDefinite annotation) {
+        this.semiPositive = annotation.semiPositive();
+    }
+
     @Override
     public boolean isValid(double[][] matrix, ConstraintValidatorContext context) {
         //Check for square matrix
@@ -23,8 +31,14 @@ public class PositiveDefiniteValidator implements ConstraintValidator<PositiveDe
         SimpleEVD<SimpleMatrix> eigenValues =  matrixRep.eig();
         for (int i = 0; i < matrix.length; i++) {
             double eigenValue = eigenValues.getEigenvalue(i).getReal();
-            if (eigenValue <= 0) {
-                return fail(context, "Matrix must be positive definite but found eigenvalue less than or equal to 0, eigenvalue: " + eigenValue);
+            if (semiPositive) {
+                if (eigenValue < 0) {
+                    return fail(context, "Matrix must be semi positive definite but found eigenvalue less than 0, eigenvalue: " + eigenValue);
+                }
+            } else {
+                if (eigenValue <= 0) {
+                    return fail(context, "Matrix must be positive definite but found eigenvalue less than or equal to 0, eigenvalue: " + eigenValue);
+                }
             }
         }
 

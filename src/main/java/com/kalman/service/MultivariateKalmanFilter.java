@@ -6,17 +6,14 @@ import lombok.Getter;
 /**
  * Simple N-D Kalman filter engine.
  * Only position is measured and estimated (no velocity, acceleration or other dependent measurements.)
- *
  * Stateful: each instance tracks its own estimate (x) and uncertainty (P).
  * Designed to be held inside a session-scoped Spring bean so that one filter
  * instance corresponds to exactly one client session.
- *
  * Algorithm (per update call)
  * ───────────────────────────
  *  Predict:
  *    x⁻ = x           (state does not change on its own – constant model) ->
  *    P⁻ = P + Q       (uncertainty grows by process noise)
- *
  *  Update:
  *    K  = P⁻*(P⁻ + R)^-1            (Kalman gain)
  *    x  = x⁻ + K · (z − x⁻)       (fuse measurement z into estimate)

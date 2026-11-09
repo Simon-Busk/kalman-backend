@@ -13,4 +13,6 @@ public @interface PositiveDefinite {
     String message() default "Matrix has to be positive definite";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
+
+    boolean semiPositive() default false;
 }

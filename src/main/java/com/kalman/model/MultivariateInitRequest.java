@@ -2,21 +2,23 @@ package com.kalman.model;
 
 import com.kalman.model.validators.ExtendedCheck;
 import com.kalman.model.validators.Finite;
+import com.kalman.model.validators.MatrixSize;
 import com.kalman.model.validators.PositiveDefinite;
 import jakarta.validation.GroupSequence;
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.ejml.simple.SimpleMatrix;
 
 @Data
 @GroupSequence({MultivariateInitRequest.class ,ExtendedCheck.class})
+@MatrixSize
 public class MultivariateInitRequest {
     @NotEmpty
     @Finite(groups = ExtendedCheck.class)
     private double[] firstMeasurement;
     @NotEmpty
     @Finite(groups = ExtendedCheck.class)
+    @PositiveDefinite(groups = ExtendedCheck.class, semiPositive = true)
     private double[][] processNoise;
     @NotEmpty
     @Finite(groups = ExtendedCheck.class)

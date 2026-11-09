@@ -16,6 +16,7 @@ public class ValidationExceptionHandler {
     public ResponseEntity<?> handle(MethodArgumentNotValidException e) {
         Map<String, String> errors = new LinkedHashMap<>();
         e.getBindingResult().getFieldErrors().forEach(f -> errors.put(f.getField(), f.getDefaultMessage()));
+        e.getBindingResult().getGlobalErrors().forEach(f -> errors.put(f.getObjectName(), f.getDefaultMessage()));
         return ResponseEntity.badRequest().body(errors);
     }
 }
