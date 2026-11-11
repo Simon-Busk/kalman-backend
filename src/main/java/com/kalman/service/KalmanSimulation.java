@@ -1,6 +1,7 @@
 package com.kalman.service;
 
 import com.kalman.model.StepResult;
+import lombok.Getter;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -9,6 +10,7 @@ import lombok.Setter;
 
 @Component
 public class KalmanSimulation {
+    @Getter
     private KalmanFilter filter;
     @Setter
     private double variance;
@@ -29,7 +31,8 @@ public class KalmanSimulation {
         return result;
     }
 
-    public double Measurement() {
+    //Helper method to generate random measurements from variance and mean using Gaussian distribution.
+    private double Measurement() {
         return mean + Math.sqrt(variance) * rng.nextGaussian();
     }
 }

@@ -10,17 +10,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * REST API for the step-by-step Kalman filter.
- *
  * Endpoints
  * ─────────
  *  POST   /api/kalman/init    – create / reset filter with config
  *  POST   /api/kalman/step    – feed one measurement, get estimate back
  *  GET    /api/kalman/state   – peek at current filter state
  *  DELETE /api/kalman/reset   – wipe the filter for this session
- *
  * Session scope means each browser tab gets its own independent filter.
  * The JSESSIONID cookie is set automatically by Spring.
  */
@@ -36,7 +35,6 @@ public class KalmanController {
 
     /**
      * Initialise (or re-initialise) the filter for this session.
-     *
      * Example – seed with first measurement (recommended):
      * <pre>
      * POST /api/kalman/init
@@ -91,7 +89,7 @@ public class KalmanController {
     public ResponseEntity<?> step(@Valid @RequestBody MeasurementRequest request) {
         if (!kalmanService.isInitialised()) {
             return ResponseEntity.status(409)
-                    .body("Filter not initialised. POST /api/kalman/init first.");
+                    .body(Map.of("message","Filter not initialised. POST /api/kalman/init first."));
         }
         StepResult result = kalmanService.step(request);
         return ResponseEntity.ok(result);
@@ -107,7 +105,7 @@ public class KalmanController {
     public ResponseEntity<?> state() {
         if (!kalmanService.isInitialised()) {
             return ResponseEntity.status(409)
-                    .body("Filter not initialised. POST /api/kalman/init first.");
+                    .body(Map.of("message","Filter not initialised. POST /api/kalman/init first."));
         }
         return ResponseEntity.ok(kalmanService.currentState());
     }
@@ -116,9 +114,13 @@ public class KalmanController {
 
     /** Wipe the filter for this session so a new init can begin. */
     @DeleteMapping("/reset")
-    public ResponseEntity<String> reset() {
+    public ResponseEntity<?> reset() {
+        if (!kalmanService.isInitialised()) {
+            return ResponseEntity.status(409)
+                    .body(Map.of("message", "Filter was not initialised and therefore nothing has been done."));
+        }
         kalmanService.reset();
-        return ResponseEntity.ok("Kalman filter was succesfully reset and a new filter can be initialised.");
+        return ResponseEntity.ok(Map.of("message", "Kalman filter was succesfully reset and a new filter can be initialised."));
     }
 
     @PostMapping("/simulation")
@@ -142,7 +144,7 @@ public class KalmanController {
     public ResponseEntity<?> multivariateStep(@Valid @RequestBody MultivariateMeasurementRequest stepRequest) {
         if (!multivariateKalmanService.isInitialised()) {
             return ResponseEntity.status(409)
-                    .body("Multivariate filter not initialised. POST /api/kalman/multivariate/init first.");
+                    .body(Map.of("message","Multivariate filter not initialised. POST /api/kalman/multivariate/init first."));
         }
         MultivariateStepResult stepResult = multivariateKalmanService.step(stepRequest);
         return ResponseEntity.ok(stepResult);
@@ -152,14 +154,14 @@ public class KalmanController {
     public ResponseEntity<?> multivariateState() {
         if (!multivariateKalmanService.isInitialised()) {
             return ResponseEntity.status(409)
-                    .body("Multivariate filter not initialised. POST /api/kalman/multivariate/init first.");
+                    .body(Map.of("message","Multivariate filter not initialised. POST /api/kalman/multivariate/init first."));
         }
         return ResponseEntity.ok(multivariateKalmanService.currentState());
     }
 
     @DeleteMapping("/multivariate/reset")
-    public ResponseEntity<String> multivariateReset() {
+    public ResponseEntity<?> multivariateReset() {
         multivariateKalmanService.reset();
-        return ResponseEntity.ok("Multivariate kalman filter was reset and a new filter can be initialised.");
+        return ResponseEntity.ok(Map.of("message","Multivariate kalman filter was reset and a new filter can be initialised."));
     }
 }
