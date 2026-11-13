@@ -24,7 +24,7 @@ public class PositiveDefiniteValidator implements ConstraintValidator<PositiveDe
         SimpleMatrix matrixRep = new SimpleMatrix(matrix);
         //Check symmetry
         if (!matrixRep.isIdentical(matrixRep.transpose(), 0)) {
-            return fail(context, "Matrix must be symmetrical");
+            return fail(context, "Matrix must be symmetrical.");
         }
 
         //Check eigenvalues to guarantee positive definite
@@ -33,11 +33,11 @@ public class PositiveDefiniteValidator implements ConstraintValidator<PositiveDe
             double eigenValue = eigenValues.getEigenvalue(i).getReal();
             if (semiPositive) {
                 if (eigenValue < 0) {
-                    return fail(context, "Matrix must be semi positive definite but found eigenvalue less than 0, eigenvalue: " + eigenValue);
+                    return fail(context, "Matrix must be semi positive definite but found eigenvalue less than 0, eigenvalue: " + eigenValue + ".");
                 }
             } else {
                 if (eigenValue <= 0) {
-                    return fail(context, "Matrix must be positive definite but found eigenvalue less than or equal to 0, eigenvalue: " + eigenValue);
+                    return fail(context, "Matrix must be positive definite but found eigenvalue less than or equal to 0, eigenvalue: " + eigenValue + ".");
                 }
             }
         }
