@@ -19,8 +19,8 @@ import lombok.Getter;
  */
 public class KalmanFilter {
 
-    private final double Q;   // process noise covariance
-    private final double R;   // measurement noise covariance
+    private final double Q;   // Process Noise fluctuation in the true value (example liquid in a container)
+    private final double R;   // Measurement noise covariance
 
     private double x;         // current state estimate
     private double P;         // current error covariance
@@ -44,6 +44,7 @@ public class KalmanFilter {
         // Predict
         double pPred = P + Q;
 
+        // Update
         x = x + K * (measurement - x);
         P = (1.0 - K) * pPred;
         step++;

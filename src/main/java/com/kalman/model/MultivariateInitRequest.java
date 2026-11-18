@@ -24,6 +24,9 @@ public class MultivariateInitRequest {
     @Finite(groups = ExtendedCheck.class)
     @PositiveDefinite(groups = ExtendedCheck.class)
     private double[][] measurementNoise;
+    @Finite
+    private double[][] stateTransition;
+
 
     public SimpleMatrix getFirstMeasurement() {
         return new SimpleMatrix(firstMeasurement);
@@ -35,5 +38,13 @@ public class MultivariateInitRequest {
 
     public SimpleMatrix getMeasurementNoise() {
         return new SimpleMatrix(measurementNoise);
+    }
+
+    public SimpleMatrix getStateTransition() {
+        if (stateTransition != null) {
+            return new SimpleMatrix(stateTransition);
+        } else {
+            return SimpleMatrix.identity(firstMeasurement.length);
+        }
     }
 }

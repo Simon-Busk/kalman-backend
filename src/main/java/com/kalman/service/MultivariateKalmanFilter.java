@@ -23,6 +23,7 @@ import lombok.Getter;
 public class MultivariateKalmanFilter {
     private final SimpleMatrix Q;
     private final SimpleMatrix R;
+    private final SimpleMatrix F; //State transition matrix.
 
     private SimpleMatrix x; //This is n*1 vector, estimate.
     private SimpleMatrix P;
@@ -34,11 +35,13 @@ public class MultivariateKalmanFilter {
     public MultivariateKalmanFilter(SimpleMatrix initialEstimate,
                                     SimpleMatrix initialUncertainty,
                                     SimpleMatrix processNoise,
-                                    SimpleMatrix measurementNoise) {
+                                    SimpleMatrix measurementNoise,
+                                    SimpleMatrix stateTransition) {
         this.x = initialEstimate;
         this.P = initialUncertainty;
         this.Q = processNoise;
         this.R = measurementNoise;
+        this.F = stateTransition;
     }
 
     public void update(SimpleMatrix measurement) {
@@ -48,11 +51,16 @@ public class MultivariateKalmanFilter {
             errorMessage += "\nDatapoints in measurement: " + measurement.getNumRows();
             throw new InvalidMeasurementException(errorMessage);
         }
-        SimpleMatrix pPred = P.plus(Q);
         z = measurement;
+
+        // Prediction
+        SimpleMatrix pPred = (F.mult(P).mult(F.transpose())).plus(Q);
+        SimpleMatrix xPred = F.mult(x);
+
+        // Update
         SimpleMatrix S = pPred.plus(R);
         SimpleMatrix K = pPred.mult(S.invert());
-        x = x.plus(K.mult(measurement.minus(x)));
+        x = xPred.plus(K.mult(measurement.minus(xPred)));
         SimpleMatrix IK = SimpleMatrix.identity(P.getNumRows()).minus(K);
         P = IK.mult(pPred).mult(IK.transpose()).plus(K.mult(R).mult(K.transpose()));
         step++;
@@ -65,6 +73,7 @@ public class MultivariateKalmanFilter {
         }
         return estimate;
     }
+
     public double[][] getUncertainty() { return P.toArray2(); }
     public double[][] getKalmanGain() {
         SimpleMatrix K = P.plus(Q).mult((P.plus(Q).plus(R)).invert());
