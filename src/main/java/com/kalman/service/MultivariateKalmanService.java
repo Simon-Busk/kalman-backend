@@ -17,7 +17,13 @@ public class MultivariateKalmanService {
     private boolean initialised = false;
 
     public MultivariateFilterState initialise(MultivariateInitRequest initRequest) {
-        filter = new MultivariateKalmanFilter(initRequest.getFirstMeasurement(), initRequest.getMeasurementNoise(), initRequest.getProcessNoise(), initRequest.getMeasurementNoise(), initRequest.getStateTransition());
+        filter = new MultivariateKalmanFilter(
+                initRequest.getInitialState(),
+                initRequest.getInitialUncertainty(),
+                initRequest.getProcessNoise(),
+                initRequest.getMeasurementNoise(),
+                initRequest.getStateTransition(),
+                initRequest.getObservationModel());
         initialised = true;
 
         return currentState();

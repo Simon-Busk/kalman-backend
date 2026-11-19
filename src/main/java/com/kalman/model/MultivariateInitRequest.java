@@ -11,11 +11,11 @@ import org.ejml.simple.SimpleMatrix;
 
 @Data
 @GroupSequence({MultivariateInitRequest.class ,ExtendedCheck.class})
-@MatrixSize
+@MatrixSize(groups = ExtendedCheck.class)
 public class MultivariateInitRequest {
     @NotEmpty
     @Finite(groups = ExtendedCheck.class)
-    private double[] firstMeasurement;
+    private double[] initialState;
     @NotEmpty
     @Finite(groups = ExtendedCheck.class)
     @PositiveDefinite(groups = ExtendedCheck.class, semiPositive = true)
@@ -26,10 +26,14 @@ public class MultivariateInitRequest {
     private double[][] measurementNoise;
     @Finite
     private double[][] stateTransition;
+    @Finite
+    private double[][] observationModel;
+    @Finite
+    private double [][] initialUncertainty;
 
 
-    public SimpleMatrix getFirstMeasurement() {
-        return new SimpleMatrix(firstMeasurement);
+    public SimpleMatrix getInitialState() {
+        return new SimpleMatrix(initialState);
     }
 
     public SimpleMatrix getProcessNoise() {
@@ -44,7 +48,23 @@ public class MultivariateInitRequest {
         if (stateTransition != null) {
             return new SimpleMatrix(stateTransition);
         } else {
-            return SimpleMatrix.identity(firstMeasurement.length);
+            return SimpleMatrix.identity(initialState.length);
+        }
+    }
+
+    public SimpleMatrix getObservationModel() {
+        if (observationModel != null) {
+            return new SimpleMatrix(observationModel);
+        } else {
+            return SimpleMatrix.identity(initialState.length);
+        }
+    }
+
+    public SimpleMatrix getInitialUncertainty() {
+        if (initialUncertainty != null) {
+            return new SimpleMatrix(initialUncertainty);
+        } else {
+            return getMeasurementNoise();
         }
     }
 }
