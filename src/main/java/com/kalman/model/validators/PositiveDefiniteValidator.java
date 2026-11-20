@@ -16,6 +16,10 @@ public class PositiveDefiniteValidator implements ConstraintValidator<PositiveDe
 
     @Override
     public boolean isValid(double[][] matrix, ConstraintValidatorContext context) {
+        // Null/empty check should be done before this.
+        if (matrix == null) {
+            return true;
+        }
         //Check for square matrix
         if (matrix.length != matrix[0].length) {
             return fail(context, "Matrix must be a square matrix.");

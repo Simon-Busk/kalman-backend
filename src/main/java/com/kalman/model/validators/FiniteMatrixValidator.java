@@ -6,7 +6,7 @@ import jakarta.validation.ConstraintValidatorContext;
 public class FiniteMatrixValidator implements ConstraintValidator<Finite, double[][]> {
     @Override
     public boolean isValid(double[][] matrix, ConstraintValidatorContext context) {
-        // Specific check for state transition.
+        // Null/Empty check should be done in separate check.
         if (matrix == null) {
             return true;
         }

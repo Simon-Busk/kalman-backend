@@ -14,16 +14,15 @@ import org.ejml.simple.SimpleMatrix;
 @MatrixSize(groups = ExtendedCheck.class)
 public class MultivariateInitRequest {
     @NotEmpty
-    @Finite(groups = ExtendedCheck.class)
+    @Finite
     private double[] initialState;
     @NotEmpty
-    @Finite(groups = ExtendedCheck.class)
-    @PositiveDefinite(groups = ExtendedCheck.class, semiPositive = true)
-    private double[][] processNoise;
-    @NotEmpty
-    @Finite(groups = ExtendedCheck.class)
-    @PositiveDefinite(groups = ExtendedCheck.class)
+    @Finite
+    @PositiveDefinite
     private double[][] measurementNoise;
+    @Finite
+    @PositiveDefinite(semiPositive = true)
+    private double[][] processNoise;
     @Finite
     private double[][] stateTransition;
     @Finite
@@ -37,7 +36,11 @@ public class MultivariateInitRequest {
     }
 
     public SimpleMatrix getProcessNoise() {
-        return new SimpleMatrix(processNoise);
+        if (processNoise != null) {
+            return new SimpleMatrix(processNoise);
+        } else {
+            return new SimpleMatrix(initialState.length, initialState.length);
+        }
     }
 
     public SimpleMatrix getMeasurementNoise() {
