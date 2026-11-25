@@ -24,7 +24,7 @@ import java.util.Map;
  * The JSESSIONID cookie is set automatically by Spring.
  */
 @RestController
-@RequestMapping("/api/kalman")
+@RequestMapping("/api/kalman/{id}")
 @RequiredArgsConstructor
 public class KalmanController {
 
@@ -135,33 +135,33 @@ public class KalmanController {
     // Multivariate api
 
     @PostMapping("/multivariate/init")
-    public ResponseEntity<MultivariateFilterState> multivariateInit(@Valid @RequestBody MultivariateInitRequest init) {
-        MultivariateFilterState filterState = multivariateKalmanService.initialise(init);
+    public ResponseEntity<MultivariateFilterState> multivariateInit(@Valid @RequestBody MultivariateInitRequest init, @PathVariable String id) {
+        MultivariateFilterState filterState = multivariateKalmanService.initialise(init, id);
         return ResponseEntity.ok((filterState));
     }
 
     @PostMapping("multivariate/step")
-    public ResponseEntity<?> multivariateStep(@Valid @RequestBody MultivariateMeasurementRequest stepRequest) {
-        if (!multivariateKalmanService.isInitialised()) {
+    public ResponseEntity<?> multivariateStep(@Valid @RequestBody MultivariateMeasurementRequest stepRequest, @PathVariable String id) {
+        if (multivariateKalmanService.isNotInitialised(id)) {
             return ResponseEntity.status(409)
-                    .body(Map.of("message","Multivariate filter not initialised. POST /api/kalman/multivariate/init first."));
+                    .body(Map.of("message","Multivariate filter not initialised. POST /api/kalman/{id}/multivariate/init first."));
         }
-        MultivariateStepResult stepResult = multivariateKalmanService.step(stepRequest);
+        MultivariateStepResult stepResult = multivariateKalmanService.step(stepRequest, id);
         return ResponseEntity.ok(stepResult);
     }
 
     @GetMapping("/multivariate/state")
-    public ResponseEntity<?> multivariateState() {
-        if (!multivariateKalmanService.isInitialised()) {
+    public ResponseEntity<?> multivariateState(@PathVariable String id) {
+        if (multivariateKalmanService.isNotInitialised(id)) {
             return ResponseEntity.status(409)
-                    .body(Map.of("message","Multivariate filter not initialised. POST /api/kalman/multivariate/init first."));
+                    .body(Map.of("message","Multivariate filter not initialised. POST /api/kalman/{id}/multivariate/init first."));
         }
-        return ResponseEntity.ok(multivariateKalmanService.currentState());
+        return ResponseEntity.ok(multivariateKalmanService.currentState(id));
     }
 
     @DeleteMapping("/multivariate/reset")
-    public ResponseEntity<?> multivariateReset() {
-        multivariateKalmanService.reset();
+    public ResponseEntity<?> multivariateReset(@PathVariable String id) {
+        multivariateKalmanService.reset(id);
         return ResponseEntity.ok(Map.of("message","Multivariate kalman filter was reset and a new filter can be initialised."));
     }
 }

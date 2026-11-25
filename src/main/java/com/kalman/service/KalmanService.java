@@ -10,7 +10,6 @@ import org.springframework.web.context.annotation.SessionScope;
 
 /**
  * Session-scoped service: one instance per HTTP session (one per browser tab).
- *
  * Spring creates this bean when the first request arrives in a new session and
  * destroys it when the session expires (default: 30 min of inactivity).
  * This means each client gets its own isolated Kalman filter state.
@@ -19,6 +18,7 @@ import org.springframework.web.context.annotation.SessionScope;
 @SessionScope
 public class KalmanService {
 
+    @Getter
     private KalmanFilter filter;
     @Getter
     private boolean initialised = false;

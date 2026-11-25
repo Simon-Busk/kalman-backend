@@ -55,9 +55,16 @@ public class MultivariateKalmanFilter {
         }
         z = measurement;
 
-        // Prediction
-        SimpleMatrix pPred = (F.mult(P).mult(F.transpose())).plus(Q);
-        SimpleMatrix xPred = F.mult(x);
+        // Prediction (First measurement is measurement of the initial estimate)
+        SimpleMatrix pPred;
+        SimpleMatrix xPred;
+        if (step > 0) {
+            pPred = (F.mult(P).mult(F.transpose())).plus(Q);
+            xPred = F.mult(x);
+        } else {
+            pPred = P;
+            xPred = x;
+        }
 
         // Update
         //Kalman gain

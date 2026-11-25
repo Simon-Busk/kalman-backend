@@ -7,8 +7,10 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.Random;
 import lombok.Setter;
+import org.springframework.web.context.annotation.SessionScope;
 
 @Component
+@SessionScope
 public class KalmanSimulation {
     @Getter
     private KalmanFilter filter;
